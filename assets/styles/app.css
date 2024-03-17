@@ -1,0 +1,11 @@
+html, body{
+    background-color: #E8E8E8;
+}
+
+.wrapper {
+    padding: 5rem;
+}
+
+.w-fit{
+    width: fit-content;
+}
