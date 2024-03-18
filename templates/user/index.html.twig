@@ -4,11 +4,15 @@
 
 {% block body %}
 
-<div id="turbo-user-table">
-    <div class="wrapper">
+<div id="turbo-user-table" >
+    <div class="wrapper" data-controller="table">
+        <div class="loader d-none" data-table-target="spinner">
+            <div class="spinner-border shadow-sm text-primary" role="status">
+            </div>
+        </div>
         <div class="d-flex justify-content-between align-item-center">
 
-            <select onchange="tableSizeChange(this, {{ currentPage }})" class="form-select shadow-sm bg-light w-fit">
+            <select data-action="change->table#setLoading" onchange="tableSizeChange(this, {{ currentPage }})" class="form-select shadow-sm bg-light w-fit">
                 {% for allowedSize in allowedTableSize %}
                     <option value="{{ allowedSize }}" {% if size == allowedSize %} selected {% endif %}>{{ allowedSize }}</option>
                 {% endfor %}
@@ -16,40 +20,49 @@
 
             <div class="d-flex justify-content-between align-item-center">
                 
-                <a href="{{ path('app_user', {'page': 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn bg-light {% if (currentPage == (1)) %} disabled {% endif %}">
+                <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn bg-light {% if (currentPage == (1)) %} disabled {% endif %}">
                     <i class="bi bi-chevron-double-left"></i>
                 </a>
 
                 {% for i in (currentPage - 3)..(currentPage + 1) %}
 
                     {% if (i + 1 > 0) and (i + 1 <= nbPage)  %}
-                        <a href="{{ path('app_user', {'page': i + 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn {% if (currentPage == (i + 1)) %} btn-primary disabled {% else %} bg-light {% endif %}">
+                        <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': i + 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn {% if (currentPage == (i + 1)) %} btn-primary disabled {% else %} bg-light {% endif %}">
                             {{ i + 1 }}
                         </a>
                     {% endif %}
 
                 {% endfor %}
                 
-                <a href="{{ path('app_user', {'page': nbPage, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn btn bg-light {% if (currentPage == (nbPage)) %} disabled {% endif %}">
+                <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': nbPage, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn btn bg-light {% if (currentPage == (nbPage)) %} disabled {% endif %}">
                     <i class="bi bi-chevron-double-right"></i>
                 </a>
             </div>
 
         </div>
-        <table class="table table-striped bg-white border-light shadow-sm my-3">
+        <table 
+            class="table table-striped bg-white border-light shadow-sm my-3"
+            data-table-target="table"
+        >
             <thead class="bg-white">
-                <tr>
+                <tr class="bg-slate-600">
                     {% for col in tableColumns %}
                         <th scope="col">
-                            <a class="dropdown-toggle text-decoration-none text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span role="button" class="dropdown-toggle text-decoration-none text-dark" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ col.label }}
-                            </a>
+                            </span>
                             <ul class="dropdown-menu shadow-sm">
                                 {% for sub in col.sort %}
                                     <li>
-                                        <a class="dropdown-item d-flex justify-content-between item-center" href="#">
+                                        <button 
+                                            class="dropdown-item d-flex justify-content-between item-center" 
+                                            data-action="click->table#resolveColumnSorting"
+                                            data-item-url-param="{{ path('app_user', {'page': currentPage, 'size': size}) }}"
+                                            data-item-id-param="{{ col.id }}"
+                                            data-item-payload-param="{{ sub.action }}"
+                                        >
                                             {{ sub.label }} {{ sub.icon | raw }}
-                                        </a>
+                                        </button>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -93,10 +106,14 @@
                             {{ user.updatedAt|date('d/m/Y H:i:s') }}
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary mx-1">
+                            <button 
+                                class="btn btn-sm btn-primary mx-1">
                                 <i class="bi bi-pencil-fill"></i>
                             </button>
-                            <a href="{{ path('app_user_toggle', {'page': currentPage, 'user_id' : user.id}) }}" class="shadow-sm border-white btn btn-sm mx-1 {% if not (user.disabled) %} btn-danger {% else %} btn-warning {% endif %}">
+                            <a 
+                                data-action="click->table#setLoading"
+                                href="{{ path('app_user_toggle', {'page': currentPage, 'user_id' : user.id}) }}" 
+                                class="shadow-sm border-white btn btn-sm mx-1 {% if not (user.disabled) %} btn-danger {% else %} btn-warning {% endif %}">
                                 {% if not (user.disabled) %}
                                     <i class="bi bi-trash3-fill"></i>
                                 {% else %}
@@ -110,7 +127,7 @@
         </table>
         <div class="d-flex justify-content-between align-item-center">
 
-            <select onchange="tableSizeChange(this, {{ currentPage }})" class="form-select shadow-sm bg-light w-fit">
+            <select data-action="change->table#setLoading" onchange="tableSizeChange(this, {{ currentPage }})" class="form-select shadow-sm bg-light w-fit">
                 {% for allowedSize in allowedTableSize %}
                     <option value="{{ allowedSize }}" {% if size == allowedSize %} selected {% endif %}>{{ allowedSize }}</option>
                 {% endfor %}
@@ -118,21 +135,21 @@
 
             <div class="d-flex justify-content-between align-item-center">
                 
-                <a href="{{ path('app_user', {'page': 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn bg-light {% if (currentPage == (1)) %} disabled {% endif %}">
+                <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn bg-light {% if (currentPage == (1)) %} disabled {% endif %}">
                     <i class="bi bi-chevron-double-left"></i>
                 </a>
 
                 {% for i in (currentPage - 3)..(currentPage + 1) %}
 
                     {% if (i + 1 > 0) and (i + 1 <= nbPage)  %}
-                        <a href="{{ path('app_user', {'page': i + 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn {% if (currentPage == (i + 1)) %} btn-primary disabled {% else %} bg-light {% endif %}">
+                        <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': i + 1, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn {% if (currentPage == (i + 1)) %} btn-primary disabled {% else %} bg-light {% endif %}">
                             {{ i + 1 }}
                         </a>
                     {% endif %}
 
                 {% endfor %}
                 
-                <a href="{{ path('app_user', {'page': nbPage, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn btn bg-light {% if (currentPage == (nbPage)) %} disabled {% endif %}">
+                <a role="button" data-action="click->table#setLoading" href="{{ path('app_user', {'page': nbPage, 'size' : size}) }}" draggable="false" class="shadow-sm border user-select-none mx-1 btn btn bg-light {% if (currentPage == (nbPage)) %} disabled {% endif %}">
                     <i class="bi bi-chevron-double-right"></i>
                 </a>
             </div>

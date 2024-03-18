@@ -15,49 +15,59 @@ class UserController extends AbstractController
     #[Route('/user', name: 'app_user')]
     public function index(UserRepository $userRepo, Request $request): Response
     {
-        $currentPage = $request->query->get('page') ? $request->query->get('page') : 1;
-        $size = $request->query->get('size') ? $request->query->get('size') : 10;
+        $currentPage = intval($request->query->get('page')) ? intval($request->query->get('page')) : 1;
+        $size = intval($request->query->get('size')) ? intval($request->query->get('size')) : 10;
         $allowedTableSize = [10,20,50,100];
+        $sortCol = $request->query->get('sort-col');
+        $sortAction = $request->query->get('sort-action');
 
         $basicSort = [
             [
                 'label' => 'Croissant',
+                'action' => 'asc',
                 'icon' => '<i class="bi bi-sort-alpha-down"></i>'
             ],
             [
                 'label' => 'Décroissant',
+                'action' => 'desc',
                 'icon' => '<i class="bi bi-sort-alpha-up"></i>'
             ]
         ];
-            
 
         $tableColumns = [
             [
+                'id' => 'id',
                 'label' => '#',
                 'sort' => $basicSort,
                 'activated' => false
             ],
             [
+                'id' => 'firstname',
                 'label' => 'Firstname',
                 'sort' => $basicSort
             ],
             [
+                'id' => 'lastname',
                 'label' => 'Lastname',
                 'sort' => $basicSort
             ],
             [
+                'id' => 'email',
                 'label' => 'Email',
                 'sort' => $basicSort
             ],
             [
+                'id' => 'banned',
                 'label' => 'Banned',
                 'sort' => $basicSort
             ],
             [
+                'id' => 'created',
                 'label' => 'Created',
                 'sort' => $basicSort
             ],
             [
+                'id' => 'updated',
                 'label' => 'Updated',
                 'sort' => $basicSort
             ]
@@ -69,7 +79,9 @@ class UserController extends AbstractController
             $size = 10;
         }
 
-        $paginator = $userRepo->getPaginator($currentPage, $size);
+        $customQueryBuilder = $userRepo->createQueryBuilder('u');
+
+        $paginator = $userRepo->getPaginator($currentPage, $size, $customQueryBuilder);
 
         return $this->render('user/index.html.twig', [
             'users' => $paginator,

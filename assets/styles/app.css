@@ -1,11 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body{
     background-color: #E8E8E8;
 }
 
 .wrapper {
     padding: 5rem;
+    position: relative
 }
 
 .w-fit{
     width: fit-content;
+}
+
+.loading {
+    filter: blur(3px);
+}
+
+.loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    filter: none !important;
+}
+
+td, th {
+    vertical-align: middle;
 }

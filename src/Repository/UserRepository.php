@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -47,10 +48,10 @@ class UserRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function getPaginator($page, $size = 10){
+    public function getPaginator(int $page, int $size = 10, QueryBuilder $qb){
         $firstResult = ($page - 1) * $size;
 
-        $queryBuilder = $this->createQueryBuilder('u')->setFirstResult($firstResult)->setMaxResults($size);
+        $queryBuilder = $qb->setFirstResult($firstResult)->setMaxResults($size);
         $query = $queryBuilder->getQuery();
 
         $paginator = new Paginator($query, true);
